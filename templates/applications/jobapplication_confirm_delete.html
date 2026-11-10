@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Delete application{% endblock %}
+
+{% block content %}
+<h2>Delete application?</h2>
+<p>Are you sure you want to delete <strong>{{ object }}</strong>? Its notes will also be deleted.</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a href="{% url 'applications:detail' object.pk %}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

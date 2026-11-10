@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}My Applications{% endblock %}
+{% block max_width %}1000px{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="m-0">My Applications</h2>
+    <a class="btn btn-primary" href="{% url 'applications:create' %}">+ Add application</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="q" value="{{ q }}" class="form-control"
+               placeholder="Search title or company">
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">All statuses</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="sort" class="form-select">
+            {% for value, label in sort_choices %}
+                <option value="{{ value }}" {% if value == sort %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-outline-secondary">Apply</button>
+    </div>
+</form>
+
+{% if applications %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr><th>Job title</th><th>Company</th><th>Status</th><th>Applied</th></tr>
+        </thead>
+        <tbody>
+        {% for app in applications %}
+            <tr>
+                <td><a href="{% url 'applications:detail' app.pk %}">{{ app.job_title }}</a></td>
+                <td>{{ app.company.name }}</td>
+                <td><span class="badge text-bg-secondary">{{ app.get_status_display }}</span></td>
+                <td>{{ app.application_date|date:"d M Y" }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <p class="text-muted">No applications found.</p>
+{% endif %}
+
+{% if is_paginated %}
+<nav>
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">Previous</a>
+            </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ querystring }}">Next</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

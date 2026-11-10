@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ object.job_title }}{% endblock %}
+{% block max_width %}800px{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h2 class="mb-0">{{ object.job_title }}</h2>
+        <p class="text-muted mb-0">
+            {{ object.company.name }}{% if object.location %} · {{ object.location }}{% endif %}
+        </p>
+    </div>
+    <span class="badge text-bg-primary">{{ object.get_status_display }}</span>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Employment</dt>
+    <dd class="col-sm-9">{{ object.get_employment_type_display }}</dd>
+
+    <dt class="col-sm-3">Applied on</dt>
+    <dd class="col-sm-9">{{ object.application_date|date:"d M Y" }}</dd>
+
+    {% if object.salary_min or object.salary_max %}
+        <dt class="col-sm-3">Salary range</dt>
+        <dd class="col-sm-9">{{ object.salary_min|default:"—" }} – {{ object.salary_max|default:"—" }}</dd>
+    {% endif %}
+
+    {% if object.job_url %}
+        <dt class="col-sm-3">Job posting</dt>
+        <dd class="col-sm-9">
+            <a href="{{ object.job_url }}" target="_blank" rel="noopener noreferrer">Open posting</a>
+        </dd>
+    {% endif %}
+
+    {% if object.company.website %}
+        <dt class="col-sm-3">Company site</dt>
+        <dd class="col-sm-9">
+            <a href="{{ object.company.website }}" target="_blank" rel="noopener noreferrer">{{ object.company.website }}</a>
+        </dd>
+    {% endif %}
+</dl>
+
+{% if object.job_description %}
+    <h5>Job description</h5>
+    {{ object.job_description|linebreaks }}
+{% endif %}
+
+<div class="d-flex gap-2 my-3">
+    <a class="btn btn-outline-primary" href="{% url 'applications:update' object.pk %}">Edit</a>
+    <a class="btn btn-outline-danger" href="{% url 'applications:delete' object.pk %}">Delete</a>
+    <a class="btn btn-link" href="{% url 'applications:list' %}">Back to list</a>
+</div>
+
+<hr>
+<h5>Notes</h5>
+<form method="post" action="{% url 'applications:add_note' object.pk %}" class="mb-3">
+    {% csrf_token %}
+    {{ note_form.content }}
+    <button type="submit" class="btn btn-secondary btn-sm mt-2">Add note</button>
+</form>
+
+{% for note in object.notes.all %}
+    <div class="border rounded p-2 mb-2">
+        {{ note.content|linebreaksbr }}
+        <div class="text-muted small">{{ note.created_at|date:"d M Y, H:i" }}</div>
+    </div>
+{% empty %}
+    <p class="text-muted">No notes yet.</p>
+{% endfor %}
+{% endblock %}
